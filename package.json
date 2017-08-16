@@ -1,0 +1,37 @@
+{
+  "name": "mozaik-ext-analytics-demo",
+  "version": "2.0.0",
+  "description": "Mozaïk Google Analytics extension demo dashboard",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/plouc/mozaik-ext-github"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Raphaël Benitte",
+    "url": "https://github.com/plouc"
+  },
+  "engineStrict": true,
+  "engines": {
+    "node": ">=6.0.0",
+    "npm": ">=3.0.0"
+  },
+  "dependencies": {
+    "@mozaik/server": "^2.0.0-alpha.2",
+    "@mozaik/themes": "^1.0.0-alpha.12",
+    "@mozaik/ui": "^2.0.0-alpha.13",
+    "dotenv": "^2.0.0",
+    "mozaik-ext-analytics": "https://github.com/plouc/mozaik-ext-analytics.git#a330bfff2331ddd1375a2e0b9100adac1d7a7cc1",
+    "nivo": "^0.12.0",
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1"
+  },
+  "devDependencies": {
+    "react-scripts": "1.0.10"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "postinstall": "npm run build"
+  }
+}
