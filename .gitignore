@@ -4,8 +4,9 @@
 *.log*
 /.nyc_output
 /coverage
-/lib
-/es
+# Required to reference this package from github
+#/lib
+#/es
 /node_modules
 *.p12
 *.pem
