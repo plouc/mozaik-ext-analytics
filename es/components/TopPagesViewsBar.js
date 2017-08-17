@@ -6,17 +6,29 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash-es';
 import { Widget, WidgetHeader, WidgetBody, WidgetLoader } from '@mozaik/ui';
 import { ResponsiveBar } from 'nivo';
+import { resultsMapper } from '../lib/dto';
 
-var margin = { top: 20, right: 20, bottom: 40, left: 60 };
+var mapResults = resultsMapper({
+    'ga:pagePath': ['page'],
+    'ga:pageviews': ['views', function (v) {
+        return Number(v);
+    }]
+});
+
+var margin = { top: 10, right: 20, bottom: 54, left: 140 };
 var axisLeft = {
-    legend: 'views',
-    legendPosition: 'center',
-    legendOffset: -40
+    format: function format(v) {
+        if (v.length <= 14) return v;
+        return v.slice(0, 14) + '\u2026';
+    }
 };
-var axisBottom = {};
+var axisBottom = {
+    legend: 'avg. time',
+    legendPosition: 'center',
+    legendOffset: 36
+};
 
 var TopPagesViewsBar = function (_Component) {
     _inherits(TopPagesViewsBar, _Component);
@@ -29,13 +41,12 @@ var TopPagesViewsBar = function (_Component) {
 
     TopPagesViewsBar.getApiRequest = function getApiRequest(_ref) {
         var id = _ref.id,
-            dimensions = _ref.dimensions,
             startDate = _ref.startDate,
             endDate = _ref.endDate;
 
         return {
             id: 'analytics.topPages.' + id + '.' + (startDate || '') + '.' + (endDate || ''),
-            params: { id: id, dimensions: dimensions, startDate: startDate, endDate: endDate }
+            params: { id: id, startDate: startDate, endDate: endDate }
         };
     };
 
@@ -48,29 +59,12 @@ var TopPagesViewsBar = function (_Component) {
 
         var body = React.createElement(WidgetLoader, null);
         if (apiData) {
-            var data = [{
-                id: 'views',
-                data: apiData.results.reduce(function (acc, entry) {
-                    var page = _.find(entry, function (d) {
-                        return d.col.name === 'ga:pagePath';
-                    });
-                    var pageViews = _.find(entry, function (d) {
-                        return d.col.name === 'ga:pageviews';
-                    });
-
-                    if (page && pageViews) {
-                        return [].concat(acc, [{
-                            x: page.value,
-                            y: Number(pageViews.value)
-                        }]);
-                    }
-
-                    return acc;
-                }, [])
-            }];
-
             body = React.createElement(ResponsiveBar, {
-                data: data,
+                data: mapResults(apiData.results).reverse(),
+                indexBy: 'page',
+                keys: ['views'],
+                groupMode: 'grouped',
+                layout: 'horizontal',
                 margin: margin,
                 theme: theme.charts,
                 colors: theme.charts.colors,

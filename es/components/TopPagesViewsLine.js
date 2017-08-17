@@ -8,11 +8,13 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Widget, WidgetHeader, WidgetBody, WidgetLoader } from '@mozaik/ui';
 import { ResponsiveLine } from 'nivo';
-import { mapResults } from '../lib/dto';
+import { resultsMapper } from '../lib/dto';
 
-var mapper = mapResults({
-    'ga:pagePath': 'page',
-    'ga:pageviews': 'views'
+var mapResults = resultsMapper({
+    'ga:pagePath': ['x'],
+    'ga:pageviews': ['y', function (v) {
+        return Number(v);
+    }]
 });
 
 var margin = { top: 20, right: 20, bottom: 40, left: 60 };
@@ -34,13 +36,12 @@ var TopPagesViewsLine = function (_Component) {
 
     TopPagesViewsLine.getApiRequest = function getApiRequest(_ref) {
         var id = _ref.id,
-            dimensions = _ref.dimensions,
             startDate = _ref.startDate,
             endDate = _ref.endDate;
 
         return {
             id: 'analytics.topPages.' + id + '.' + (startDate || '') + '.' + (endDate || ''),
-            params: { id: id, dimensions: dimensions, startDate: startDate, endDate: endDate }
+            params: { id: id, startDate: startDate, endDate: endDate }
         };
     };
 
@@ -55,14 +56,7 @@ var TopPagesViewsLine = function (_Component) {
         if (apiData) {
             var data = [{
                 id: 'views',
-                data: mapper(apiData.results).map(function (_ref2) {
-                    var page = _ref2.page,
-                        views = _ref2.views;
-                    return {
-                        x: page,
-                        y: Number(views)
-                    };
-                })
+                data: mapResults(apiData.results)
             }];
 
             body = React.createElement(ResponsiveLine, {

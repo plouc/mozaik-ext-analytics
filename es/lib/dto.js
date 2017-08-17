@@ -7,7 +7,8 @@ export var mapEntry = function mapEntry(mapping) {
                 return d.col.name === key;
             });
             if (match) {
-                result[mapping[key]] = match.value;
+                var transform = mapping[key][1];
+                result[mapping[key][0]] = transform ? transform(match.value) : match.value;
             }
         });
 
@@ -15,7 +16,7 @@ export var mapEntry = function mapEntry(mapping) {
     };
 };
 
-export var mapResults = function mapResults(mapping) {
+export var resultsMapper = function resultsMapper(mapping) {
     return function (results) {
         return results.map(mapEntry(mapping));
     };

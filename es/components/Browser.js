@@ -19,13 +19,12 @@ var Browser = function (_Component) {
 
     Browser.getApiRequest = function getApiRequest(_ref) {
         var id = _ref.id,
-            dimensions = _ref.dimensions,
             startDate = _ref.startDate,
             endDate = _ref.endDate;
 
         return {
             id: 'analytics.browser.' + id + '.' + (startDate || '') + '.' + (endDate || ''),
-            params: { id: id, dimensions: dimensions, startDate: startDate, endDate: endDate }
+            params: { id: id, startDate: startDate, endDate: endDate }
         };
     };
 

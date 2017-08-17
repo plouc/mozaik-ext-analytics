@@ -6,14 +6,24 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash-es';
 import moment from 'moment';
 import { Widget, WidgetHeader, WidgetBody, WidgetLoader } from '@mozaik/ui';
 import { ResponsiveLine } from 'nivo';
+import { resultsMapper } from '../lib/dto';
 
-var margin = { top: 20, right: 20, bottom: 40, left: 60 };
+var mapResults = resultsMapper({
+    'ga:date': ['date'],
+    'ga:pageviews': ['views', function (v) {
+        return Number(v);
+    }],
+    'ga:sessions': ['sessions', function (v) {
+        return Number(v);
+    }]
+});
+
+var margin = { top: 20, right: 20, bottom: 54, left: 60 };
 var format = function format(d) {
-    return moment(d).format('MM/DD');
+    return moment(d, 'YYYYMMDD').format('MM/DD');
 };
 var axisLeft = {
     legend: 'sessions/views',
@@ -21,6 +31,7 @@ var axisLeft = {
     legendOffset: -40
 };
 var axisBottom = {
+    tickRotation: -60,
     format: format
 };
 
@@ -54,29 +65,19 @@ var PageViewsLine = function (_Component) {
 
         var body = React.createElement(WidgetLoader, null);
         if (apiData) {
-            var data = apiData.results.reduce(function (acc, entry) {
-                var date = _.find(entry, function (d) {
-                    return d.col.name === 'ga:date';
-                });
-                var views = _.find(entry, function (d) {
-                    return d.col.name === 'ga:pageviews';
-                });
-                var sessions = _.find(entry, function (d) {
-                    return d.col.name === 'ga:sessions';
-                });
+            var data = mapResults(apiData.results).reduce(function (acc, _ref2) {
+                var date = _ref2.date,
+                    views = _ref2.views,
+                    sessions = _ref2.sessions;
 
-                if (date && views && sessions) {
-                    var dateString = date.value.slice(0, 4) + '-' + date.value.slice(4, 6) + '-' + date.value.slice(6, 8);
-
-                    acc[0].data.push({
-                        x: dateString,
-                        y: Number(views.value)
-                    });
-                    acc[1].data.push({
-                        x: dateString,
-                        y: Number(sessions.value)
-                    });
-                }
+                acc[0].data.push({
+                    x: date,
+                    y: views
+                });
+                acc[1].data.push({
+                    x: date,
+                    y: sessions
+                });
 
                 return acc;
             }, [{

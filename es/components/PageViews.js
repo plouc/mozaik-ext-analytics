@@ -9,17 +9,21 @@ import PropTypes from 'prop-types';
 import moment from 'moment';
 import { Widget, WidgetHeader, WidgetBody, WidgetLoader } from '@mozaik/ui';
 import { ResponsiveBar } from 'nivo';
-import { mapResults } from '../lib/dto';
+import { resultsMapper } from '../lib/dto';
 
-var mapper = mapResults({
-    'ga:date': 'date',
-    'ga:pageviews': 'views',
-    'ga:sessions': 'sessions'
+var mapResults = resultsMapper({
+    'ga:date': ['date'],
+    'ga:pageviews': ['views', function (v) {
+        return Number(v);
+    }],
+    'ga:sessions': ['sessions', function (v) {
+        return Number(v);
+    }]
 });
 
-var margin = { top: 20, right: 30, bottom: 40, left: 60 };
+var margin = { top: 20, right: 30, bottom: 54, left: 60 };
 var format = function format(d) {
-    return moment.unix(d).format('MM/DD');
+    return moment(d, 'YYYYMMDD').format('MM/DD');
 };
 var axisLeft = {
     legend: 'sessions/views',
@@ -27,6 +31,7 @@ var axisLeft = {
     legendOffset: -40
 };
 var axisBottom = {
+    tickRotation: -60,
     format: format
 };
 
@@ -60,27 +65,10 @@ var PageViews = function (_Component) {
 
         var body = React.createElement(WidgetLoader, null);
         if (apiData) {
-            var data = mapper(apiData.results).reduce(function (acc, entry) {
-                acc[0].data.push({
-                    x: entry.date,
-                    y: Number(entry.sessions)
-                });
-                acc[1].data.push({
-                    x: entry.date,
-                    y: Number(entry.views)
-                });
-
-                return acc;
-            }, [{
-                id: 'sessions',
-                data: []
-            }, {
-                id: 'views',
-                data: []
-            }]);
-
             body = React.createElement(ResponsiveBar, {
-                data: data,
+                data: mapResults(apiData.results),
+                indexBy: 'date',
+                keys: ['sessions', 'views'],
                 margin: margin,
                 groupMode: 'grouped',
                 xPadding: 0.3,
